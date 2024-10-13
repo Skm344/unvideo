@@ -1,16 +1,12 @@
-/*
- * @NOTE: Prepend a `~` to css file paths that are in your node_modules
- *        See https://github.com/webpack-contrib/sass-loader#imports
- */
 body {
   position: relative;
   color: white;
   height: 100vh;
   background: linear-gradient(
     200.96deg,
-    #fedc2a -29.09%,
-    #dd5789 51.77%,
-    #7a2c9e 129.35%
+    #8f8f8f -29.09%,
+    #121112 51.77%,
+    #4f4f4f 129.35%
   );
   font-family: sans-serif;
   overflow-y: hidden;
@@ -62,7 +58,6 @@ a:hover {
   border: 1px solid red;
 }
 
-
 /* New styles */
 
 .file-input {
@@ -78,15 +73,46 @@ a:hover {
   border-radius: 12px;
   font-size: 16px;
   cursor: pointer;
-
-  &:hover {
-    background-color: #f2f2f2;;
-  }
 }
 
+.file-button:hover {
+  background-color: #f2f2f2;
+}
 
 .form-layout {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  align-items: center; /* Center align the items */
+}
+
+.homepage {
+  text-align: center;
+  margin-top: 50px;
+}
+
+.logo {
+  width: 150px;
+  margin-bottom: 20px;
+}
+
+.buttons {
+  margin-top: 30px;
+}
+
+button {
+  padding: 10px 20px;
+  margin: 10px;
+  font-size: 18px;
+}
+
+.form-layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 30px;
+}
+
+.file-button {
+  margin-bottom: 20px;
 }

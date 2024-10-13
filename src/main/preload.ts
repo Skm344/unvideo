@@ -14,6 +14,29 @@ import ffmpegstatic from 'ffmpeg-static';
 export type Channels = 'ipc-example';
 
 const electronHandler = {
+  mapLanguageVideo: (
+    videoFilePath: string,
+    audioFilePath: string,
+    outputFilePath: string,
+  ) => {
+    ffmpeg()
+      .input(videoFilePath)
+      .input(audioFilePath)
+      .audioCodec('copy')
+      .videoCodec('copy')
+      .outputOptions('-map', '0:v:0', '-map', '1:a:0')
+      .save(outputFilePath)
+      .on('end', () => {
+        alert('Conversion completed successfully!');
+      })
+      .on('error', (err) => {
+        console.error('Error during conversion:', err);
+        alert(
+          'An error occurred during the conversion process. Please try again.',
+        );
+      });
+  },
+
   trimVideo: (filePath: string, outputFileName: string, ffmpegPath: string) => {
     const outputDirectory = path.dirname(filePath);
     const outputFilePath = path.join(outputDirectory, outputFileName);
