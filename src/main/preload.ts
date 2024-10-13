@@ -14,11 +14,10 @@ import ffmpegstatic from 'ffmpeg-static';
 export type Channels = 'ipc-example';
 
 const electronHandler = {
-  mapLanguageVideo: (
-    videoFilePath: string,
-    audioFilePath: string,
-    outputFilePath: string,
-  ) => {
+  mapLanguageVideo: (videoFilePath: string, audioFilePath: string) => {
+    const outputDirectory = path.dirname(videoFilePath);
+    const fileName = path.basename(videoFilePath);
+    const outputFilePath = path.join(outputDirectory, 'output-' + fileName);
     ffmpeg()
       .input(videoFilePath)
       .input(audioFilePath)

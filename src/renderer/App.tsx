@@ -32,7 +32,7 @@ function Home() {
 function ReplaceAudio() {
   const [videoFilePath, setVideoFilePath] = useState('');
   const [audioFilePath, setAudioFilePath] = useState('');
-  const [outputFilePath, setOutputFilePath] = useState('');
+  // const [outputFilePath, setOutputFilePath] = useState('');
   const navigate = useNavigate(); // Hook to navigate back
 
   function handleVideoUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -49,36 +49,19 @@ function ReplaceAudio() {
     }
   }
 
-  function handleOutputFileSelect() {
-    const outputPath = dialog.showSaveDialogSync({
-      title: 'Save Converted File',
-      defaultPath: 'newaudio.mp4',
-      filters: [{ name: 'Videos', extensions: ['mp4'] }],
-    });
-
-    if (outputPath) {
-      setOutputFilePath(outputPath);
-    }
-  }
-
   function handleSubmit() {
-    if (!videoFilePath || !audioFilePath || !outputFilePath) {
+    if (!videoFilePath || !audioFilePath) {
       alert(
         'Please upload video and audio files and select an output location.',
       );
       return;
     }
 
-    window.electron.mapLanguageVideo(
-      videoFilePath,
-      audioFilePath,
-      outputFilePath,
-    );
+    window.electron.mapLanguageVideo(videoFilePath, audioFilePath);
   }
 
   return (
     <div className="form-layout">
-      <button onClick={() => navigate('/')}>Back to Home</button>{' '}
       {/* Back Button */}
       <h2>Replace Audio in Video</h2>
       <label className="file-button">
@@ -96,14 +79,15 @@ function ReplaceAudio() {
         <input
           className="file-input"
           type="file"
-          accept=".mp3,.wav"
+          accept=".mp3,.wav, .mp4"
           onChange={handleAudioUpload}
         />
       </label>
       <div>{audioFilePath}</div>
-      <button onClick={handleOutputFileSelect}>Select Output File</button>
-      <div>{outputFilePath}</div>
       <button onClick={handleSubmit}>Convert</button>
+      <br />
+      <br />
+      <button onClick={() => navigate('/')}>Back to Home</button>{' '}
     </div>
   );
 }
@@ -113,11 +97,11 @@ function AddLanguageAudio() {
 
   return (
     <div className="form-layout">
-      <button onClick={() => navigate('/')}>Back to Home</button>{' '}
-      {/* Back Button */}
       <h2>Add Language Audio Tracks</h2>
       {/* Additional input fields for language tracks can go here */}
       {/* You can add more functionality for language track handling */}
+      <button onClick={() => navigate('/')}>Back to Home</button>{' '}
+      {/* Back Button */}
     </div>
   );
 }
