@@ -5,7 +5,7 @@ type AudioChecksProps = {
 export function AudioCheck({ path }: AudioChecksProps) {
   return (
     <div>
-      {path ? '✅' : '☑️'} {path.split('/').pop()}
+      {path.split('/').pop()} {path ? '✅' : '☑️'}
     </div>
   );
 }
