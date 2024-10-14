@@ -1,18 +1,19 @@
 body {
   position: relative;
-  color: white;
+  color: #f0f0f0; /* Off-white text for a softer appearance */
   height: 100vh;
   background: linear-gradient(
-    200.96deg,
-    #8f8f8f -29.09%,
-    #121112 51.77%,
-    #4f4f4f 129.35%
+    220deg,
+    #0a3d62 0%,   /* Dark blue */
+    #1e3799 50%,  /* Medium blue */
+    #3c6382 100%  /* Blue-gray */
   );
-  font-family: sans-serif;
-  overflow-y: hidden;
+  font-family: "Roboto", sans-serif; /* Modern font */
+  overflow-y: auto; /* Enable scrolling */
   display: flex;
   justify-content: center;
   align-items: center;
+  text-align: center; /* Center text */
 }
 
 button {
@@ -132,4 +133,133 @@ button {
   justify-content: center;
   align-items: center;
   gap: 12px;
+}
+body {
+  position: relative;
+  color: #e0e0e0; /* Softer light-gray text */
+  height: 100vh;
+  background: linear-gradient(
+    210deg,
+    #1b262c 0%,   /* Dark charcoal */
+    #3e4e57 50%,  /* Soft blue-gray */
+    #5e7380 100%  /* Muted gray-blue */
+  );
+  font-family: "Roboto", sans-serif; /* Modern, clean font */
+  overflow-y: auto; /* Allow scrolling if content overflows */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+}
+
+h1 {
+  font-size: 2.5rem;
+  color: #ffffff; /* Bright white for headings */
+  margin-bottom: 20px;
+}
+
+button {
+  background-color: #ffffff; /* White buttons */
+  color: #333333; /* Dark gray text for contrast */
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: none;
+  font-size: 1.3rem;
+  box-shadow: 0px 8px 28px -6px rgba(24, 39, 75, 0.12),
+    0px 18px 88px -4px rgba(24, 39, 75, 0.14);
+  transition: all ease-in 0.1s;
+  cursor: pointer;
+  opacity: 0.9;
+}
+
+button:hover {
+  transform: scale(1.05);
+  opacity: 1;
+}
+
+a {
+  text-decoration: none;
+  height: fit-content;
+  width: fit-content;
+  margin: 10px;
+}
+
+a:hover {
+  opacity: 1;
+}
+
+li {
+  list-style: none;
+}
+
+.logo {
+  width: 150px; /* Logo size */
+  margin-bottom: 20px;
+}
+
+.buttons {
+  margin-top: 30px; /* Spacing above buttons */
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* Even spacing between buttons */
+}
+
+.file-input {
+  display: none;
+}
+
+.file-button {
+  all: unset;
+  border: 1px solid #ffffff;
+  padding: 12px;
+  background-color: #ffffff;
+  color: #333333;
+  border-radius: 12px;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.file-button:hover {
+  background-color: #f0f0f0;
+}
+
+.form-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center; /* Center items */
+}
+
+.homepage {
+  text-align: center;
+  margin-top: 50px;
+}
+
+.InputBox {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 20px;
+}
+
+.flex {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Copyright Footer */
+footer {
+  position: absolute;
+  bottom: 20px;
+  width: 100%;
+  text-align: center;
+  color: #e0e0e0; /* Light gray */
+  font-size: 0.9rem;
 }

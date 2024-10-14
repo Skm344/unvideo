@@ -15,7 +15,7 @@ function Home() {
     <div className="homepage">
       <img src={UNLogo} alt="UN Logo" className="logo" />{' '}
       {/* Display UN Logo */}
-      <h1>UN Web TV Tool</h1>
+      <h1>FFMPEG Tool</h1>
       <div className="buttons">
         <Link to="/replace-audio">
           <button>Replace Audio File</button>{' '}
@@ -26,16 +26,9 @@ function Home() {
           {/* Button for Add Language Audio Page */}
         </Link>
       </div>
-      {/* Copyright section */}
-      <p
-        style={{
-          fontFamily: 'Arial, sans-serif',
-          fontSize: '14px',
-          color: '#333',
-        }}
-      >
-        &copy; 2024 Saleem Mohamed. All rights reserved.
-      </p>
+      <footer>
+        © 2024 Saleem Mohamed - All Rights Reserved {/* Copyright Footer */}
+      </footer>
     </div>
   );
 }
