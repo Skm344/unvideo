@@ -73,6 +73,13 @@ a:hover {
   border-radius: 12px;
   font-size: 16px;
   cursor: pointer;
+  display: flex
+}
+
+.InputBox{
+  display: flex;
+  align-items: center;
+  gap: 20px;
 }
 
 .file-button:hover {
@@ -82,7 +89,7 @@ a:hover {
 .form-layout {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 5px;
   align-items: center; /* Center align the items */
 }
 
@@ -114,5 +121,13 @@ button {
 }
 
 .file-button {
-  margin-bottom: 20px;
+  /* margin-bottom: 20px; */
+}
+
+
+.flex {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
 }

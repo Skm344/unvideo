@@ -8,6 +8,7 @@ import {
 import UNLogo from './UN_logo.png'; // Import the UN logo
 import './App.css';
 import { useState } from 'react';
+import { AudioCheck } from './AudioChecks';
 
 function Home() {
   return (
@@ -93,12 +94,12 @@ function ReplaceAudio() {
 function AddLanguageAudio() {
   const [videoFilePath, setVideoFilePath] = useState('');
   const [audioFilePaths, setAudioFilePaths] = useState({
-    EN: '',
-    FR: '',
-    RU: '',
-    SP: '',
-    ZH: '',
-    AR: '',
+    English: '',
+    France: '',
+    Russian: '',
+    Spanish: '',
+    Chinese: '',
+    Arabic: '',
   });
   const navigate = useNavigate(); // Hook to navigate back
 
@@ -131,19 +132,23 @@ function AddLanguageAudio() {
   return (
     <div className="form-layout">
       <h2>Add Language Audio Tracks</h2>
-      <label className="file-button">
-        Upload Original Video File
-        <input
-          className="file-input"
-          type="file"
-          accept=".mp4"
-          onChange={handleVideoUpload}
-        />
-      </label>
-      <div>{videoFilePath}</div>
+      <div className="flex">
+        <label className="file-button">
+          Upload Original Video File
+          <input
+            className="file-input"
+            type="file"
+            accept=".mp4"
+            onChange={handleVideoUpload}
+          />
+        </label>
+        <div>
+          <AudioCheck path={videoFilePath} />
+        </div>
+      </div>
       <h3>Upload Language Audio Files</h3>
       {Object.keys(audioFilePaths).map((lang) => (
-        <div key={lang}>
+        <div key={lang} className="InputBox">
           <label className="file-button">
             Upload {lang} Audio File
             <input
@@ -155,7 +160,9 @@ function AddLanguageAudio() {
               }
             />
           </label>
-          <div>{audioFilePaths[lang as keyof typeof audioFilePaths]}</div>
+          <AudioCheck
+            path={audioFilePaths[lang as keyof typeof audioFilePaths]}
+          />
         </div>
       ))}
       <button onClick={handleSubmit}>Convert</button>

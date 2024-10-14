@@ -14,12 +14,12 @@ import ffmpegstatic from 'ffmpeg-static';
 export type Channels = 'ipc-example';
 
 type MapAudioList = {
-  EN: string;
-  FR: string;
-  RU: string;
-  SP: string;
-  ZH: string;
-  AR: string;
+  English: string;
+  France: string;
+  Russian: string;
+  Spanish: string;
+  Chinese: string;
+  Arabic: string;
 };
 
 const electronHandler = {
@@ -42,43 +42,43 @@ const electronHandler = {
     mapOptions.push('-map 0:a'); // Map the audio stream from the video file (index 0)
     metadataOptions.push('-metadata:s:a:0 language=ina'); // Metadata for the main audio
 
-    if (!!audioList.EN) {
-      command.input(audioList.EN); // Add English audio if it exists
+    if (!!audioList.English) {
+      command.input(audioList.English); // Add English audio if it exists
       mapOptions.push(`-map ${currentAudioIndex}:a`); // Map English audio to the correct index
       metadataOptions.push('-metadata:s:a:1 language=eng');
       currentAudioIndex++; // Increment index for the next audio track
     }
 
-    if (!!audioList.FR) {
-      command.input(audioList.FR); // Add French audio if it exists
+    if (!!audioList.France) {
+      command.input(audioList.France); // Add French audio if it exists
       mapOptions.push(`-map ${currentAudioIndex}:a`); // Map French audio
       metadataOptions.push('-metadata:s:a:2 language=fra');
       currentAudioIndex++;
     }
 
-    if (!!audioList.RU) {
-      command.input(audioList.RU); // Add Russian audio if it exists
+    if (!!audioList.Russian) {
+      command.input(audioList.Russian); // Add Russian audio if it exists
       mapOptions.push(`-map ${currentAudioIndex}:a`); // Map Russian audio
       metadataOptions.push('-metadata:s:a:3 language=rus');
       currentAudioIndex++;
     }
 
-    if (!!audioList.SP) {
-      command.input(audioList.SP); // Add Spanish audio if it exists
+    if (!!audioList.Spanish) {
+      command.input(audioList.Spanish); // Add Spanish audio if it exists
       mapOptions.push(`-map ${currentAudioIndex}:a`); // Map Spanish audio
       metadataOptions.push('-metadata:s:a:4 language=spa');
       currentAudioIndex++;
     }
 
-    if (!!audioList.ZH) {
-      command.input(audioList.ZH); // Add Chinese audio if it exists
+    if (!!audioList.Chinese) {
+      command.input(audioList.Chinese); // Add Chinese audio if it exists
       mapOptions.push(`-map ${currentAudioIndex}:a`); // Map Chinese audio
       metadataOptions.push('-metadata:s:a:5 language=zho');
       currentAudioIndex++;
     }
 
-    if (!!audioList.AR) {
-      command.input(audioList.AR); // Add Arabic audio if it exists
+    if (!!audioList.Arabic) {
+      command.input(audioList.Arabic); // Add Arabic audio if it exists
       mapOptions.push(`-map ${currentAudioIndex}:a`); // Map Arabic audio
       metadataOptions.push('-metadata:s:a:6 language=ara');
       currentAudioIndex++;
@@ -91,10 +91,10 @@ const electronHandler = {
     command
       .save(outputFilePath)
       .on('end', () => {
-        console.log('Processing finished successfully');
+        alert('Processing finished successfully');
       })
       .on('error', (err) => {
-        console.error('An error occurred: ' + err.message);
+        alert('An error occurred: ' + err.message);
       });
   },
   mapLanguageVideo: (videoFilePath: string, audioFilePath: string) => {
