@@ -26,6 +26,16 @@ function Home() {
           {/* Button for Add Language Audio Page */}
         </Link>
       </div>
+      {/* Copyright section */}
+      <p
+        style={{
+          fontFamily: 'Arial, sans-serif',
+          fontSize: '14px',
+          color: '#333',
+        }}
+      >
+        &copy; 2024 Saleem Mohamed. All rights reserved.
+      </p>
     </div>
   );
 }
@@ -62,7 +72,7 @@ function ReplaceAudio() {
 
   return (
     <div className="form-layout">
-      <h2>Replace Audio in Video</h2>
+      <h2>Replace Audio</h2>
       <label className="file-button">
         Upload Video File
         <input
@@ -131,7 +141,7 @@ function AddLanguageAudio() {
 
   return (
     <div className="form-layout">
-      <h2>Add Language Audio Tracks</h2>
+      <h2></h2>
       <div className="flex">
         <label className="file-button">
           Upload Original Video File
