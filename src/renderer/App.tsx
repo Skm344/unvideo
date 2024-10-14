@@ -32,7 +32,6 @@ function Home() {
 function ReplaceAudio() {
   const [videoFilePath, setVideoFilePath] = useState('');
   const [audioFilePath, setAudioFilePath] = useState('');
-  // const [outputFilePath, setOutputFilePath] = useState('');
   const navigate = useNavigate(); // Hook to navigate back
 
   function handleVideoUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -62,7 +61,6 @@ function ReplaceAudio() {
 
   return (
     <div className="form-layout">
-      {/* Back Button */}
       <h2>Replace Audio in Video</h2>
       <label className="file-button">
         Upload Video File
@@ -79,7 +77,7 @@ function ReplaceAudio() {
         <input
           className="file-input"
           type="file"
-          accept=".mp3,.wav, .mp4"
+          accept=".mp3,.wav,.mp4"
           onChange={handleAudioUpload}
         />
       </label>
@@ -93,15 +91,77 @@ function ReplaceAudio() {
 }
 
 function AddLanguageAudio() {
+  const [videoFilePath, setVideoFilePath] = useState('');
+  const [audioFilePaths, setAudioFilePaths] = useState({
+    EN: '',
+    FR: '',
+    RU: '',
+    SP: '',
+    ZH: '',
+    AR: '',
+  });
   const navigate = useNavigate(); // Hook to navigate back
+
+  function handleVideoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    if (e.target.files && e.target.files.length > 0) {
+      const path = e.target.files[0].path;
+      setVideoFilePath(path);
+    }
+  }
+
+  function handleAudioUpload(
+    language: keyof typeof audioFilePaths,
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) {
+    if (e.target.files && e.target.files.length > 0) {
+      const path = e.target.files[0].path;
+      setAudioFilePaths((prev) => ({ ...prev, [language]: path }));
+    }
+  }
+
+  function handleSubmit() {
+    if (!videoFilePath) {
+      alert('Please upload the original video file.');
+      return;
+    }
+
+    window.electron.mapMultipleAudio(videoFilePath, audioFilePaths);
+  }
 
   return (
     <div className="form-layout">
       <h2>Add Language Audio Tracks</h2>
-      {/* Additional input fields for language tracks can go here */}
-      {/* You can add more functionality for language track handling */}
+      <label className="file-button">
+        Upload Original Video File
+        <input
+          className="file-input"
+          type="file"
+          accept=".mp4"
+          onChange={handleVideoUpload}
+        />
+      </label>
+      <div>{videoFilePath}</div>
+      <h3>Upload Language Audio Files</h3>
+      {Object.keys(audioFilePaths).map((lang) => (
+        <div key={lang}>
+          <label className="file-button">
+            Upload {lang} Audio File
+            <input
+              className="file-input"
+              type="file"
+              accept=".mp3,.wav,.mp4"
+              onChange={(e) =>
+                handleAudioUpload(lang as keyof typeof audioFilePaths, e)
+              }
+            />
+          </label>
+          <div>{audioFilePaths[lang as keyof typeof audioFilePaths]}</div>
+        </div>
+      ))}
+      <button onClick={handleSubmit}>Convert</button>
+      <br />
+      <br />
       <button onClick={() => navigate('/')}>Back to Home</button>{' '}
-      {/* Back Button */}
     </div>
   );
 }
