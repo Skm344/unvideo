@@ -137,11 +137,11 @@ function AddLanguageAudio() {
       <h2></h2>
       <div className="flex">
         <label className="file-button">
-          Upload Original Video File
+          Upload Original Video
           <input
             className="file-input"
             type="file"
-            accept=".mp4"
+            accept=".mp4,.avi"
             onChange={handleVideoUpload}
           />
         </label>
@@ -153,7 +153,7 @@ function AddLanguageAudio() {
       {Object.keys(audioFilePaths).map((lang) => (
         <div key={lang} className="InputBox">
           <label className="file-button">
-            Upload {lang} Audio File
+            Upload {lang} Audio
             <input
               className="file-input"
               type="file"
