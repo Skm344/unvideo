@@ -35,7 +35,7 @@ const electronHandler = {
     // Array to keep track of mappings and metadata options
     const mapOptions = [];
     const metadataOptions = [];
-
+    
     // Map video and audio files if they exist
     let currentAudioIndex = 1; // Start mapping audio streams at index 1
     mapOptions.push('-map 0:v'); // Map the video stream from the first input

@@ -15,8 +15,12 @@ function Home() {
     <div className="homepage">
       <img src={UNLogo} alt="UN Logo" className="logo" />{' '}
       {/* Display UN Logo */}
-      <h1>FFMPEG Tool</h1>
+      <h1>AudioMap </h1>
       <div className="buttons">
+        <Link to="/add-language">
+          <button>Add Metadata</button>{' '}
+          {/* Button for Add Language Audio Page */}
+        </Link>
         <Link to="/replace-audio">
           <button>Replace Audio File</button>{' '}
           {/* Button for Replace Audio Page */}
