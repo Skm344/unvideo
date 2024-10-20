@@ -15,7 +15,7 @@ function Home() {
     <div className="homepage">
       <img src={UNLogo} alt="UN Logo" className="logo" />{' '}
       {/* Display UN Logo */}
-      <h1>AudioMap </h1>
+      <h1>MetaWave </h1>
       <div className="buttons">
         <Link to="/add-language">
           <button>Add Metadata</button>{' '}
