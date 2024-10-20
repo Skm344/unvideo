@@ -17,7 +17,7 @@ function Home() {
       {/* Display UN Logo */}
       <h1>MetaWave </h1>
       <div className="buttons">
-        <Link to="/add-language">
+        <Link to="/add-metadata">
           <button>Add Metadata</button>{' '}
           {/* Button for Add Language Audio Page */}
         </Link>
@@ -138,7 +138,6 @@ function AddLanguageAudio() {
 
   return (
     <div className="form-layout">
-      <h2></h2>
       <div className="flex">
         <label className="file-button">
           Upload Original Video
@@ -180,6 +179,47 @@ function AddLanguageAudio() {
   );
 }
 
+function AddMetadata() {
+  const [videoFilePath, setVideoFilePath] = useState('');
+
+  const navigate = useNavigate(); // Hook to navigate back
+
+  function handleVideoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    if (e.target.files && e.target.files.length > 0) {
+      const path = e.target.files[0].path;
+      setVideoFilePath(path);
+    }
+  }
+
+  function handleSubmit() {
+    if (!videoFilePath) {
+      alert('Please upload the original video file.');
+      return;
+    }
+
+    window.electron.addMetadata(videoFilePath);
+  }
+
+  return (
+    <div className="form-layout">
+      <div className="flex">
+        <label className="file-button">
+          Upload Original Video
+          <input
+            className="file-input"
+            type="file"
+            accept=".mp4,.avi"
+            onChange={handleVideoUpload}
+          />
+        </label>
+      </div>
+      <button onClick={handleSubmit}>Convert</button>
+      <br />
+      <br />
+      <button onClick={() => navigate('/')}>Back to Home</button>{' '}
+    </div>
+  );
+}
 export default function App() {
   return (
     <Router>
@@ -188,6 +228,7 @@ export default function App() {
         <Route path="/replace-audio" element={<ReplaceAudio />} />{' '}
         {/* Replace Audio Route */}
         <Route path="/add-language" element={<AddLanguageAudio />} />{' '}
+        <Route path="/add-metadata" element={<AddMetadata />} />{' '}
         {/* Add Language Route */}
       </Routes>
     </Router>

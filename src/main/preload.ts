@@ -22,11 +22,39 @@ type MapAudioList = {
   Arabic: string;
 };
 
+function getOutputPath(inputPath: string) {
+  const outputDirectory = path.dirname(inputPath);
+  const fileName = path.basename(inputPath);
+  const outputFilePath = path.join(outputDirectory, 'output-' + fileName);
+  return outputFilePath;
+}
+
 const electronHandler = {
+  addMetadata: (videoFilePath: string) => {
+    const outputFilePath = getOutputPath(videoFilePath);
+    ffmpeg(videoFilePath)
+      .outputOptions([
+        '-map 0', // Map all streams from the input
+        '-map -0:a:7', // Exclude the 7th audio track
+        '-c copy', // Copy the codec without re-encoding
+        '-metadata:s:a:0 language=ina', // Set language metadata for each track
+        '-metadata:s:a:1 language=eng',
+        '-metadata:s:a:2 language=fra',
+        '-metadata:s:a:3 language=rus',
+        '-metadata:s:a:4 language=spa',
+        '-metadata:s:a:5 language=zho',
+        '-metadata:s:a:6 language=ara',
+      ])
+      .save(outputFilePath)
+      .on('end', () => {
+        alert('Conversion completed successfully!');
+      })
+      .on('error', (err) => {
+        alert('An error occurred: ' + err.message);
+      });
+  },
   mapMultipleAudio: (videoFilePath: string, audioList: MapAudioList) => {
-    const outputDirectory = path.dirname(videoFilePath);
-    const fileName = path.basename(videoFilePath);
-    const outputFilePath = path.join(outputDirectory, 'output-' + fileName);
+    const outputFilePath = getOutputPath(videoFilePath);
     const command = ffmpeg()
       .input(videoFilePath) // Video input
       .audioCodec('copy')
@@ -35,7 +63,7 @@ const electronHandler = {
     // Array to keep track of mappings and metadata options
     const mapOptions = [];
     const metadataOptions = [];
-    
+
     // Map video and audio files if they exist
     let currentAudioIndex = 1; // Start mapping audio streams at index 1
     mapOptions.push('-map 0:v'); // Map the video stream from the first input
