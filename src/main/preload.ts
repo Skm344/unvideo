@@ -1,21 +1,14 @@
 // Disable no-unused-vars, broken for spread args
 /* eslint no-unused-vars: off */
-import {
-  contextBridge,
-  ipcRenderer,
-  IpcRendererEvent,
-  ipcMain,
-  dialog,
-} from 'electron';
+import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 import ffmpeg from 'fluent-ffmpeg';
 import path from 'path';
-import ffmpegstatic from 'ffmpeg-static';
 
 export type Channels = 'ipc-example';
 
 type MapAudioList = {
   English: string;
-  France: string;
+  French: string;
   Russian: string;
   Spanish: string;
   Chinese: string;
@@ -28,6 +21,7 @@ function getOutputPath(inputPath: string) {
   const outputFilePath = path.join(outputDirectory, 'output-' + fileName);
   return outputFilePath;
 }
+
 const electronHandler = {
   mapMultipleAudio: (videoFilePath: string, audioList: MapAudioList) => {
     const outputFilePath = getOutputPath(videoFilePath);
@@ -46,32 +40,54 @@ const electronHandler = {
     metadataOptions.push('-metadata:s:a:0 language=ina'); // Set metadata for the original audio track
 
     // Function to map audio file if it exists, setting metadata for the correct language code
+    const fs = require('fs');
+    console.log('Audio list:', audioList);
+
     const addAudioMapping = (audioFilePath, languageCode, index) => {
       if (audioFilePath) {
-        command.input(audioFilePath); // Add audio input if it exists
-        mapOptions.push(`-map ${index}:a`); // Map the audio track to the specified index
-        metadataOptions.push(`-metadata:s:a:${index} language=${languageCode}`); // Set language metadata
+        // Log the file path being checked
+        console.log('Checking audio file:', audioFilePath);
+
+        if (fs.existsSync(audioFilePath)) {
+          command.input(audioFilePath); // Add audio input if it exists
+          mapOptions.push(`-map ${index}:a`); // Map the audio track to the specified index
+          metadataOptions.push(
+            `-metadata:s:a:${index} language=${languageCode}`,
+          ); // Set language metadata
+          console.log(`Added ${languageCode} audio track at index ${index}`);
+        } else {
+          console.error(`Audio file not found: ${audioFilePath}`);
+        }
       }
     };
-
     // Start counting the audio inputs from index 1 (for languages)
-    let audioInputIndex = 1;
+    let audioInputIndex = 1; // Starts from 1 because 0 is reserved for video
 
-    // Map the audio streams for each language in the desired order with fixed indexes
-    if (audioList.English)
-      addAudioMapping(audioList.English, 'eng', audioInputIndex++); // English (Expected map index: 1)
-    if (audioList.French)
-      addAudioMapping(audioList.French, 'fra', audioInputIndex++); // French (Expected map index: 2)
-    if (audioList.Russian)
-      addAudioMapping(audioList.Russian, 'rus', audioInputIndex++); // Russian (Expected map index: 3)
-    if (audioList.Spanish)
-      addAudioMapping(audioList.Spanish, 'spa', audioInputIndex++); // Spanish (Expected map index: 4)
-    if (audioList.Chinese)
-      addAudioMapping(audioList.Chinese, 'zho', audioInputIndex++); // Chinese (Expected map index: 5)
-    if (audioList.Arabic)
-      addAudioMapping(audioList.Arabic, 'ara', audioInputIndex++); // Arabic (Expected map index: 6)
-
+    // Check each audio file and map accordingly
+    if (audioList.English) {
+      addAudioMapping(audioList.English, 'eng', audioInputIndex++);
+    }
+    if (audioList.French) {
+      addAudioMapping(audioList.French, 'fra', audioInputIndex++);
+    }
+    if (audioList.Russian) {
+      addAudioMapping(audioList.Russian, 'rus', audioInputIndex++);
+    }
+    if (audioList.Spanish) {
+      addAudioMapping(audioList.Spanish, 'spa', audioInputIndex++);
+    }
+    if (audioList.Chinese) {
+      addAudioMapping(audioList.Chinese, 'zho', audioInputIndex++);
+    }
+    if (audioList.Arabic) {
+      addAudioMapping(audioList.Arabic, 'ara', audioInputIndex++);
+    }
     // Check if we have added any additional audio tracks
+    if (audioInputIndex === 1) {
+      alert('Please provide at least one audio track.');
+      return; // Exit if no audio files are provided
+    }
+    console.log('Number of audio inputs added:', audioInputIndex);
     if (audioInputIndex === 1) {
       alert('Please provide at least one audio track.');
       return; // Exit if no audio files are provided
@@ -134,14 +150,11 @@ const electronHandler = {
       .run();
   },
 
-  trimVideo: (filePath: string, outputFileName: string, ffmpegPath: string) => {
+  trimVideo: (filePath: string, outputFileName: string) => {
     const outputDirectory = path.dirname(filePath);
     const outputFilePath = path.join(outputDirectory, outputFileName);
     // ffmpeg -ss 00:00:00 -to 00:06:28 -i input.mp4 -c copy output.mp4
     try {
-      alert('ffmpeg filepath ' + ffmpegPath);
-      ffmpeg.setFfmpegPath(ffmpegPath);
-
       ffmpeg(filePath)
         .setStartTime('00:00:00')
         .setDuration('00:06:28')
@@ -161,6 +174,7 @@ const electronHandler = {
       alert(JSON.stringify(e));
     }
   },
+
   ipcRenderer: {
     sendMessage(channel: Channels, ...args: unknown[]) {
       ipcRenderer.send(channel, ...args);

@@ -102,7 +102,7 @@ function AddLanguageAudio() {
   const [videoFilePath, setVideoFilePath] = useState('');
   const [audioFilePaths, setAudioFilePaths] = useState({
     English: '',
-    France: '',
+    French: '',
     Russian: '',
     Spanish: '',
     Chinese: '',
