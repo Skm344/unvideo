@@ -28,31 +28,7 @@ function getOutputPath(inputPath: string) {
   const outputFilePath = path.join(outputDirectory, 'output-' + fileName);
   return outputFilePath;
 }
-
 const electronHandler = {
-  addMetadata: (videoFilePath: string) => {
-    const outputFilePath = getOutputPath(videoFilePath);
-    ffmpeg(videoFilePath)
-      .outputOptions([
-        '-map 0', // Map all streams from the input
-        '-map -0:a:7', // Exclude the 7th audio track
-        '-c copy', // Copy the codec without re-encoding
-        '-metadata:s:a:0 language=ina', // Set language metadata for each track
-        '-metadata:s:a:1 language=eng',
-        '-metadata:s:a:2 language=fra',
-        '-metadata:s:a:3 language=rus',
-        '-metadata:s:a:4 language=spa',
-        '-metadata:s:a:5 language=zho',
-        '-metadata:s:a:6 language=ara',
-      ])
-      .save(outputFilePath)
-      .on('end', () => {
-        alert('Conversion completed successfully!');
-      })
-      .on('error', (err) => {
-        alert('An error occurred: ' + err.message);
-      });
-  },
   mapMultipleAudio: (videoFilePath: string, audioList: MapAudioList) => {
     const outputFilePath = getOutputPath(videoFilePath);
     const command = ffmpeg()
@@ -64,88 +40,57 @@ const electronHandler = {
     const mapOptions = [];
     const metadataOptions = [];
 
-    // Map video and audio files if they exist
-    let currentAudioIndex = 1; // Start mapping audio streams at index 1
+    // Map the video stream from the first input
     mapOptions.push('-map 0:v'); // Map the video stream from the first input
-    mapOptions.push('-map 0:a'); // Map the audio stream from the video file (index 0)
-    metadataOptions.push('-metadata:s:a:0 language=ina'); // Metadata for the main audio
+    mapOptions.push('-map 0:a'); // Map the original audio stream (index 0)
+    metadataOptions.push('-metadata:s:a:0 language=ina'); // Set metadata for the original audio track
 
-    if (!!audioList.English) {
-      command.input(audioList.English); // Add English audio if it exists
-      mapOptions.push(`-map ${currentAudioIndex}:a`); // Map English audio to the correct index
-      metadataOptions.push('-metadata:s:a:1 language=eng');
-      currentAudioIndex++; // Increment index for the next audio track
+    // Function to map audio file if it exists, setting metadata for the correct language code
+    const addAudioMapping = (audioFilePath, languageCode, index) => {
+      if (audioFilePath) {
+        command.input(audioFilePath); // Add audio input if it exists
+        mapOptions.push(`-map ${index}:a`); // Map the audio track to the specified index
+        metadataOptions.push(`-metadata:s:a:${index} language=${languageCode}`); // Set language metadata
+      }
+    };
+
+    // Start counting the audio inputs from index 1 (for languages)
+    let audioInputIndex = 1;
+
+    // Map the audio streams for each language in the desired order with fixed indexes
+    if (audioList.English)
+      addAudioMapping(audioList.English, 'eng', audioInputIndex++); // English (Expected map index: 1)
+    if (audioList.French)
+      addAudioMapping(audioList.French, 'fra', audioInputIndex++); // French (Expected map index: 2)
+    if (audioList.Russian)
+      addAudioMapping(audioList.Russian, 'rus', audioInputIndex++); // Russian (Expected map index: 3)
+    if (audioList.Spanish)
+      addAudioMapping(audioList.Spanish, 'spa', audioInputIndex++); // Spanish (Expected map index: 4)
+    if (audioList.Chinese)
+      addAudioMapping(audioList.Chinese, 'zho', audioInputIndex++); // Chinese (Expected map index: 5)
+    if (audioList.Arabic)
+      addAudioMapping(audioList.Arabic, 'ara', audioInputIndex++); // Arabic (Expected map index: 6)
+
+    // Check if we have added any additional audio tracks
+    if (audioInputIndex === 1) {
+      alert('Please provide at least one audio track.');
+      return; // Exit if no audio files are provided
     }
 
-    if (!!audioList.France) {
-      command.input(audioList.France); // Add French audio if it exists
-      mapOptions.push(`-map ${currentAudioIndex}:a`); // Map French audio
-      metadataOptions.push('-metadata:s:a:2 language=fra');
-      currentAudioIndex++;
-    }
-
-    if (!!audioList.Russian) {
-      command.input(audioList.Russian); // Add Russian audio if it exists
-      mapOptions.push(`-map ${currentAudioIndex}:a`); // Map Russian audio
-      metadataOptions.push('-metadata:s:a:3 language=rus');
-      currentAudioIndex++;
-    }
-
-    if (!!audioList.Spanish) {
-      command.input(audioList.Spanish); // Add Spanish audio if it exists
-      mapOptions.push(`-map ${currentAudioIndex}:a`); // Map Spanish audio
-      metadataOptions.push('-metadata:s:a:4 language=spa');
-      currentAudioIndex++;
-    }
-
-    if (!!audioList.Chinese) {
-      command.input(audioList.Chinese); // Add Chinese audio if it exists
-      mapOptions.push(`-map ${currentAudioIndex}:a`); // Map Chinese audio
-      metadataOptions.push('-metadata:s:a:5 language=zho');
-      currentAudioIndex++;
-    }
-
-    if (!!audioList.Arabic) {
-      command.input(audioList.Arabic); // Add Arabic audio if it exists
-      mapOptions.push(`-map ${currentAudioIndex}:a`); // Map Arabic audio
-      metadataOptions.push('-metadata:s:a:6 language=ara');
-      currentAudioIndex++;
-    }
-
-    // Add map and metadata options to the command
+    // Add the map and metadata options to the ffmpeg command
     command.outputOptions([...mapOptions, ...metadataOptions]);
 
     // Save the output file
     command
       .save(outputFilePath)
       .on('end', () => {
-        alert('Processing finished successfully');
+        alert('Processing finished successfully!');
       })
       .on('error', (err) => {
         alert('An error occurred: ' + err.message);
       });
   },
-  mapLanguageVideo: (videoFilePath: string, audioFilePath: string) => {
-    const outputDirectory = path.dirname(videoFilePath);
-    const fileName = path.basename(videoFilePath);
-    const outputFilePath = path.join(outputDirectory, 'output-' + fileName);
-    ffmpeg()
-      .input(videoFilePath)
-      .input(audioFilePath)
-      .audioCodec('copy')
-      .videoCodec('copy')
-      .outputOptions('-map', '0:v:0', '-map', '1:a:0')
-      .save(outputFilePath)
-      .on('end', () => {
-        alert('Conversion completed successfully!');
-      })
-      .on('error', (err) => {
-        console.error('Error during conversion:', err);
-        alert(
-          'An error occurred during the conversion process. Please try again.',
-        );
-      });
-  },
+
   importVideoWithLanguages: (
     videoFilePath: string,
     audioFilePaths: {
