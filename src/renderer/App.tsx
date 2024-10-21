@@ -5,9 +5,9 @@ import {
   Link,
   useNavigate,
 } from 'react-router-dom';
-import UNLogo from './UN_logo.png'; // Import the UN logo
-import './App.css';
 import { useState } from 'react';
+import UNLogo from './Logo.png'; // Import the UN logo
+import './App.css';
 import { AudioCheck } from './AudioChecks';
 
 function Home() {
@@ -79,7 +79,8 @@ function ReplaceAudio() {
           onChange={handleVideoUpload}
         />
       </label>
-      <div>{videoFilePath}</div>
+      <div>{videoFilePath && <AudioCheck path={videoFilePath} />}</div>
+      {/* Display AudioCheck for video file */}
       <label className="file-button">
         Upload Audio File
         <input
@@ -89,7 +90,8 @@ function ReplaceAudio() {
           onChange={handleAudioUpload}
         />
       </label>
-      <div>{audioFilePath}</div>
+      <div>{audioFilePath && <AudioCheck path={audioFilePath} />}</div>
+      {/* Display AudioCheck for audio file */}
       <button onClick={handleSubmit}>Convert</button>
       <br />
       <br />
@@ -181,7 +183,6 @@ function AddLanguageAudio() {
 
 function AddMetadata() {
   const [videoFilePath, setVideoFilePath] = useState('');
-
   const navigate = useNavigate(); // Hook to navigate back
 
   function handleVideoUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -197,7 +198,7 @@ function AddMetadata() {
       return;
     }
 
-    window.electron.addMetadata(videoFilePath);
+    window.electron.addMetadata(videoFilePath); // Your existing function to add metadata
   }
 
   return (
@@ -212,6 +213,8 @@ function AddMetadata() {
             onChange={handleVideoUpload}
           />
         </label>
+        {/* Display AudioCheck component after video is uploaded */}
+        <div>{videoFilePath && <AudioCheck path={videoFilePath} />}</div>
       </div>
       <button onClick={handleSubmit}>Convert</button>
       <br />
@@ -220,6 +223,7 @@ function AddMetadata() {
     </div>
   );
 }
+
 export default function App() {
   return (
     <Router>
