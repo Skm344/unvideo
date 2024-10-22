@@ -4,6 +4,7 @@ import {
   shell,
   BrowserWindow,
   MenuItemConstructorOptions,
+  dialog,
 } from 'electron';
 
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
@@ -54,11 +55,21 @@ export default class MenuBuilder {
 
   buildDarwinTemplate(): MenuItemConstructorOptions[] {
     const subMenuAbout: DarwinMenuItemConstructorOptions = {
-      label: 'Electron',
+      label: 'MetaWave',
       submenu: [
         {
-          label: 'About ElectronReact',
-          selector: 'orderFrontStandardAboutPanel:',
+          label: 'About MetaWave',
+          click: () => {
+            dialog.showMessageBox({
+              type: 'info',
+              title: 'About MetaWave',
+              message:
+                'MetaWave - FFmpeg-based GUI tool to simplify the process of managing audio tracks for multilingual video content.',
+              detail:
+                'Developer: Saleem Mohamed\nEmail: Saleem.k.mohamed1@gmail.com\n\nMetaWave is designed to make it easier to replace and add language audio tracks to video files using FFmpeg, streamlining the multilingual video editing process.',
+              buttons: ['OK'],
+            });
+          },
         },
         { type: 'separator' },
         { label: 'Services', submenu: [] },
