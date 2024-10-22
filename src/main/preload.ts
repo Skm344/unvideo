@@ -6,10 +6,12 @@ import {
   IpcRendererEvent,
   ipcMain,
   dialog,
+  app,
 } from 'electron';
 import ffmpeg from 'fluent-ffmpeg';
 import path from 'path';
 import ffmpegstatic from 'ffmpeg-static';
+import { FFMPEG_PATH_KEY } from '../renderer/Settings';
 
 export type Channels = 'ipc-example';
 
@@ -29,8 +31,16 @@ function getOutputPath(inputPath: string) {
   return outputFilePath;
 }
 
+function setFfmpegPath() {
+  const ffmpegPath = JSON.parse(localStorage.getItem(FFMPEG_PATH_KEY) || '');
+  if (ffmpegPath) {
+    ffmpeg.setFfmpegPath(ffmpegPath);
+  }
+}
+
 const electronHandler = {
   addMetadata: (videoFilePath: string) => {
+    setFfmpegPath();
     const outputFilePath = getOutputPath(videoFilePath);
     ffmpeg(videoFilePath)
       .outputOptions([
@@ -54,6 +64,8 @@ const electronHandler = {
       });
   },
   mapMultipleAudio: (videoFilePath: string, audioList: MapAudioList) => {
+    setFfmpegPath();
+
     const outputFilePath = getOutputPath(videoFilePath);
     const command = ffmpeg()
       .input(videoFilePath) // Video input
@@ -126,6 +138,8 @@ const electronHandler = {
       });
   },
   mapLanguageVideo: (videoFilePath: string, audioFilePath: string) => {
+    setFfmpegPath();
+
     const outputDirectory = path.dirname(videoFilePath);
     const fileName = path.basename(videoFilePath);
     const outputFilePath = path.join(outputDirectory, 'output-' + fileName);
@@ -152,6 +166,8 @@ const electronHandler = {
       [key: string]: string; // Key is language code, value is audio file path
     },
   ) => {
+    setFfmpegPath();
+
     const outputDirectory = path.dirname(videoFilePath);
     const fileName = path.basename(videoFilePath, path.extname(videoFilePath));
     const outputFilePath = path.join(outputDirectory, `output-${fileName}.mp4`);

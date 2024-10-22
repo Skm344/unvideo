@@ -122,3 +122,14 @@ footer {
   color: #e0e0e0; /* Light gray */
   font-size: 0.9rem;
 }
+
+
+.settings-icon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  a {
+    color: white;
+
+  }
+}

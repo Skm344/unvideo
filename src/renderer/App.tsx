@@ -9,6 +9,7 @@ import { useState } from 'react';
 import UNLogo from './Logo.png'; // Import the UN logo
 import './App.css';
 import { AudioCheck } from './AudioChecks';
+import Settings from './Settings';
 
 function Home() {
   return (
@@ -16,6 +17,9 @@ function Home() {
       <img src={UNLogo} alt="UN Logo" className="logo" />{' '}
       {/* Display UN Logo */}
       <h1>MetaWave </h1>
+      <div className="settings-icon">
+        <Link to="/settings">Settings</Link>
+      </div>
       <div className="buttons">
         <Link to="/add-metadata">
           <button>Add Metadata</button>{' '}
@@ -228,6 +232,7 @@ export default function App() {
   return (
     <Router>
       <Routes>
+        <Route path="/settings" element={<Settings />} />
         <Route path="/" element={<Home />} /> {/* Home Route */}
         <Route path="/replace-audio" element={<ReplaceAudio />} />{' '}
         {/* Replace Audio Route */}
