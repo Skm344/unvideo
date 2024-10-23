@@ -6,7 +6,7 @@ import {
   useNavigate,
 } from 'react-router-dom';
 import { useState } from 'react';
-import UNLogo from './Logo.png'; // Import the UN logo
+import MetaLogo from './Logo.png'; // Import the UN logo
 import './App.css';
 import { AudioCheck } from './AudioChecks';
 import Settings from './Settings';
@@ -14,7 +14,7 @@ import Settings from './Settings';
 function Home() {
   return (
     <div className="homepage">
-      <img src={UNLogo} alt="UN Logo" className="logo" />{' '}
+      <img src={MetaLogo} alt="MetaLogo" className="logo" />{' '}
       {/* Display UN Logo */}
       <h1>MetaWave </h1>
       <div className="settings-icon">

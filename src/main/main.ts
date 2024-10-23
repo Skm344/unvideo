@@ -70,10 +70,10 @@ const createWindow = async () => {
   };
 
   mainWindow = new BrowserWindow({
-    show: false,
+    show: true,
     width: 1024,
     height: 728,
-    icon: getAssetPath('icon.png'),
+    icon: getAssetPath('assets/icons/icon.png'), // Update this if you changed the name
     webPreferences: {
       nodeIntegration: true,
       preload: app.isPackaged
