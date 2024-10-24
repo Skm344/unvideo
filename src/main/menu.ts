@@ -21,6 +21,8 @@ export default class MenuBuilder {
 
   constructor(mainWindow: BrowserWindow) {
     this.mainWindow = mainWindow;
+    // Set the application name for macOS
+    app.setName('MetaWave');
   }
 
   buildMenu(): Menu {
@@ -59,8 +61,7 @@ export default class MenuBuilder {
 
   buildDarwinTemplate(): MenuItemConstructorOptions[] {
     const subMenuAbout: DarwinMenuItemConstructorOptions = {
-      label: 'MetaWave',
-
+      label: 'MetaWave', // Changed from 'Electron' to 'MetaWave'
       submenu: [
         {
           label: 'About MetaWave',
@@ -78,7 +79,6 @@ export default class MenuBuilder {
           },
         },
         { type: 'separator' },
-
         {
           label: 'Hide Others',
           accelerator: 'Command+Shift+H',
