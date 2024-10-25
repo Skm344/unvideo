@@ -1,16 +1,8 @@
 // Disable no-unused-vars, broken for spread args
 /* eslint no-unused-vars: off */
-import {
-  contextBridge,
-  ipcRenderer,
-  IpcRendererEvent,
-  ipcMain,
-  dialog,
-  app,
-} from 'electron';
+import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 import ffmpeg from 'fluent-ffmpeg';
 import path from 'path';
-import ffmpegstatic from 'ffmpeg-static';
 import { FFMPEG_PATH_KEY } from '../renderer/Settings';
 
 export type Channels = 'ipc-example';
@@ -24,30 +16,87 @@ type MapAudioList = {
   Arabic: string;
 };
 
-function getOutputPath(inputPath: string) {
+function getOutputPath(inputPath: string): string {
   const outputDirectory = path.dirname(inputPath);
   const fileName = path.basename(inputPath);
-  const outputFilePath = path.join(outputDirectory, 'output-' + fileName);
-  return outputFilePath;
+  // Change the output extension to .mp4 for video
+  return path.join(
+    outputDirectory,
+    'output-' + fileName.replace(/\.[^/.]+$/, '.mp4'),
+  );
 }
 
-function setFfmpegPath() {
-  const ffmpegPath = JSON.parse(localStorage.getItem(FFMPEG_PATH_KEY) || '');
-  if (ffmpegPath) {
-    ffmpeg.setFfmpegPath(ffmpegPath);
+function setFfmpegPath(): void {
+  const ffmpegPathItem = localStorage.getItem(FFMPEG_PATH_KEY);
+
+  if (!ffmpegPathItem) {
+    console.warn('FFmpeg path not set in local storage.');
+    return;
+  }
+
+  try {
+    const ffmpegPath = JSON.parse(ffmpegPathItem);
+    if (ffmpegPath) {
+      ffmpeg.setFfmpegPath(ffmpegPath);
+    } else {
+      console.warn('FFmpeg path is empty or invalid.');
+    }
+  } catch (error) {
+    console.error('Error parsing FFmpeg path from local storage:', error);
   }
 }
 
 const electronHandler = {
-  addMetadata: (videoFilePath: string) => {
+  combinePhotoAndAudio(imageFilePath: string, audioFilePath: string): void {
+    console.log('Image File:', imageFilePath);
+    console.log('Audio File:', audioFilePath);
+
+    // Check if files exist
+    const fs = require('fs');
+    if (!fs.existsSync(imageFilePath)) {
+      console.error('Image file not found:', imageFilePath);
+      return;
+    }
+    if (!fs.existsSync(audioFilePath)) {
+      console.error('Audio file not found:', audioFilePath);
+      return;
+    }
+
+    setFfmpegPath();
+    const outputFilePath = getOutputPath(imageFilePath);
+    console.log('Output File:', outputFilePath);
+
+    ffmpeg()
+      .input(imageFilePath)
+      .inputOption('-loop 1')
+      .input(audioFilePath)
+      .videoCodec('libx264')
+      .audioCodec('aac')
+      .audioBitrate('192k')
+      .outputOption('-shortest')
+      .outputOption('-loglevel', 'verbose') // Enable detailed logging
+      .on('start', (cmd) => console.log('FFmpeg command:', cmd))
+      .on('progress', (progress) =>
+        console.log('Processing progress:', progress),
+      )
+      .on('end', () => {
+        console.log('Conversion completed successfully!');
+        alert('Conversion completed successfully!'); // Alert for successful conversion
+      })
+      .on('error', (err) => console.error('An error occurred:', err.message))
+      .save(outputFilePath);
+  },
+
+  addMetadata(videoFilePath: string): void {
     setFfmpegPath();
     const outputFilePath = getOutputPath(videoFilePath);
+
     ffmpeg(videoFilePath)
       .outputOptions([
-        '-map 0', // Map all streams from the input
-        '-map -0:a:7', // Exclude the 7th audio track
-        '-c copy', // Copy the codec without re-encoding
-        '-metadata:s:a:0 language=ina', // Set language metadata for each track
+        '-map 0',
+        '-map -0:a:7',
+        '-c copy',
+        '-metadata:s:a:0 language=ina',
         '-metadata:s:a:1 language=eng',
         '-metadata:s:a:2 language=fra',
         '-metadata:s:a:3 language=rus',
@@ -56,93 +105,48 @@ const electronHandler = {
         '-metadata:s:a:6 language=ara',
       ])
       .save(outputFilePath)
-      .on('end', () => {
-        alert('Conversion completed successfully!');
-      })
-      .on('error', (err) => {
-        alert('An error occurred: ' + err.message);
-      });
+      .on('end', () => alert('Metadata added successfully!'))
+      .on('error', (err) => alert('An error occurred: ' + err.message));
   },
-  mapMultipleAudio: (videoFilePath: string, audioList: MapAudioList) => {
-    setFfmpegPath();
 
+  mapMultipleAudio(videoFilePath: string, audioList: MapAudioList): void {
+    setFfmpegPath();
     const outputFilePath = getOutputPath(videoFilePath);
     const command = ffmpeg()
-      .input(videoFilePath) // Video input
+      .input(videoFilePath)
       .audioCodec('copy')
       .videoCodec('copy');
 
-    // Array to keep track of mappings and metadata options
-    const mapOptions = [];
-    const metadataOptions = [];
+    const mapOptions: string[] = [];
+    const metadataOptions: string[] = [];
+    let currentAudioIndex = 1;
 
-    // Map video and audio files if they exist
-    let currentAudioIndex = 1; // Start mapping audio streams at index 1
-    mapOptions.push('-map 0:v'); // Map the video stream from the first input
-    mapOptions.push('-map 0:a'); // Map the audio stream from the video file (index 0)
-    metadataOptions.push('-metadata:s:a:0 language=ina'); // Metadata for the main audio
+    mapOptions.push('-map 0:v', '-map 0:a');
+    metadataOptions.push('-metadata:s:a:0 language=ina');
 
-    if (!!audioList.English) {
-      command.input(audioList.English); // Add English audio if it exists
-      mapOptions.push(`-map ${currentAudioIndex}:a`); // Map English audio to the correct index
-      metadataOptions.push('-metadata:s:a:1 language=eng');
-      currentAudioIndex++; // Increment index for the next audio track
-    }
+    Object.entries(audioList).forEach(([lang, path]) => {
+      if (path) {
+        command.input(path);
+        mapOptions.push(`-map ${currentAudioIndex}:a`);
+        const languageCode = lang.toLowerCase();
+        metadataOptions.push(
+          `-metadata:s:a:${currentAudioIndex} language=${languageCode}`,
+        );
+        currentAudioIndex++;
+      }
+    });
 
-    if (!!audioList.France) {
-      command.input(audioList.France); // Add French audio if it exists
-      mapOptions.push(`-map ${currentAudioIndex}:a`); // Map French audio
-      metadataOptions.push('-metadata:s:a:2 language=fra');
-      currentAudioIndex++;
-    }
-
-    if (!!audioList.Russian) {
-      command.input(audioList.Russian); // Add Russian audio if it exists
-      mapOptions.push(`-map ${currentAudioIndex}:a`); // Map Russian audio
-      metadataOptions.push('-metadata:s:a:3 language=rus');
-      currentAudioIndex++;
-    }
-
-    if (!!audioList.Spanish) {
-      command.input(audioList.Spanish); // Add Spanish audio if it exists
-      mapOptions.push(`-map ${currentAudioIndex}:a`); // Map Spanish audio
-      metadataOptions.push('-metadata:s:a:4 language=spa');
-      currentAudioIndex++;
-    }
-
-    if (!!audioList.Chinese) {
-      command.input(audioList.Chinese); // Add Chinese audio if it exists
-      mapOptions.push(`-map ${currentAudioIndex}:a`); // Map Chinese audio
-      metadataOptions.push('-metadata:s:a:5 language=zho');
-      currentAudioIndex++;
-    }
-
-    if (!!audioList.Arabic) {
-      command.input(audioList.Arabic); // Add Arabic audio if it exists
-      mapOptions.push(`-map ${currentAudioIndex}:a`); // Map Arabic audio
-      metadataOptions.push('-metadata:s:a:6 language=ara');
-      currentAudioIndex++;
-    }
-
-    // Add map and metadata options to the command
-    command.outputOptions([...mapOptions, ...metadataOptions]);
-
-    // Save the output file
     command
+      .outputOptions([...mapOptions, ...metadataOptions])
       .save(outputFilePath)
-      .on('end', () => {
-        alert('Processing finished successfully');
-      })
-      .on('error', (err) => {
-        alert('An error occurred: ' + err.message);
-      });
+      .on('end', () => alert('Processing finished successfully'))
+      .on('error', (err) => alert('An error occurred: ' + err.message));
   },
-  mapLanguageVideo: (videoFilePath: string, audioFilePath: string) => {
-    setFfmpegPath();
 
-    const outputDirectory = path.dirname(videoFilePath);
-    const fileName = path.basename(videoFilePath);
-    const outputFilePath = path.join(outputDirectory, 'output-' + fileName);
+  mapLanguageVideo(videoFilePath: string, audioFilePath: string): void {
+    setFfmpegPath();
+    const outputFilePath = getOutputPath(videoFilePath);
+
     ffmpeg()
       .input(videoFilePath)
       .input(audioFilePath)
@@ -150,75 +154,64 @@ const electronHandler = {
       .videoCodec('copy')
       .outputOptions('-map', '0:v:0', '-map', '1:a:0')
       .save(outputFilePath)
-      .on('end', () => {
-        alert('Conversion completed successfully!');
-      })
+      .on('end', () => alert('Language video mapped successfully!'))
       .on('error', (err) => {
-        console.error('Error during conversion:', err);
+        console.error('Error during mapping:', err);
         alert(
-          'An error occurred during the conversion process. Please try again.',
+          'An error occurred during the mapping process. Please try again.',
         );
       });
   },
-  importVideoWithLanguages: (
+
+  importVideoWithLanguages(
     videoFilePath: string,
-    audioFilePaths: {
-      [key: string]: string; // Key is language code, value is audio file path
-    },
-  ) => {
+    audioFilePaths: { [key: string]: string },
+  ): void {
     setFfmpegPath();
-
-    const outputDirectory = path.dirname(videoFilePath);
-    const fileName = path.basename(videoFilePath, path.extname(videoFilePath));
-    const outputFilePath = path.join(outputDirectory, `output-${fileName}.mp4`);
-
-    // Create an ffmpeg command
+    const outputFilePath = getOutputPath(videoFilePath);
     const ffmpegCommand = ffmpeg(videoFilePath);
 
-    // Add the audio files based on the provided audioFilePaths
     Object.entries(audioFilePaths).forEach(([lang, audioPath]) => {
       ffmpegCommand.input(audioPath);
     });
 
-    // Set mapping options for each language
-    const mappingOptions = ['-map', '0:v', '-map', '0:a']; // Video and original audio
-    let metadataOptions = [];
+    const mappingOptions: string[] = ['-map', '0:v', '-map', '0:a'];
+    const metadataOptions: string[] = [];
 
     Object.keys(audioFilePaths).forEach((lang, index) => {
       mappingOptions.push('-map', `${index + 1}:a`);
-      const langCode = lang.toLowerCase();
-      metadataOptions.push(`-metadata:s:a:${index} language=${langCode}`);
+      metadataOptions.push(
+        `-metadata:s:a:${index} language=${lang.toLowerCase()}`,
+      );
     });
 
-    // Execute the ffmpeg command with mapping and metadata options
     ffmpegCommand
       .outputOptions(mappingOptions)
       .outputOptions(metadataOptions)
       .output(outputFilePath)
-      .on('end', () => {
-        alert('Processing completed successfully!');
-      })
+      .on('end', () =>
+        alert('Importing with languages completed successfully!'),
+      )
       .on('error', (err) => {
-        console.error('Error during processing:', err);
-        alert('An error occurred during processing. Please try again.');
+        console.error('Error during import:', err);
+        alert('An error occurred during import. Please try again.');
       })
       .run();
   },
 
   ipcRenderer: {
-    sendMessage(channel: Channels, ...args: unknown[]) {
+    sendMessage(channel: Channels, ...args: unknown[]): void {
       ipcRenderer.send(channel, ...args);
     },
-    on(channel: Channels, func: (...args: unknown[]) => void) {
+    on(channel: Channels, func: (...args: unknown[]) => void): () => void {
       const subscription = (_event: IpcRendererEvent, ...args: unknown[]) =>
         func(...args);
       ipcRenderer.on(channel, subscription);
-
       return () => {
         ipcRenderer.removeListener(channel, subscription);
       };
     },
-    once(channel: Channels, func: (...args: unknown[]) => void) {
+    once(channel: Channels, func: (...args: unknown[]) => void): void {
       ipcRenderer.once(channel, (_event, ...args) => func(...args));
     },
   },
